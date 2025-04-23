@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tangla College Chatbot</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../CSS/index.css">
+</head>
+<body>
+  <!-- Animated Intro Message -->
+  <div class="intro-text" id="intro-text">Hello, Student!</div>
+
+  <!-- Navbar -->
+  <div class="navbar-custom">
+    <div class="navbar-title">Tangla College Chatbot</div>
+  </div>
+
+  <!-- Chat Container -->
+  <div class="chat-container">
+    <div id="chat-box" class="chat-box"></div>
+    
+    <!-- Suggested Questions - Initially Visible -->
+    <div class="suggested-questions" id="suggested-questions">
+      <button class="suggested-btn" onclick="sendPredefinedMessage('What courses are offered?')">Courses</button>
+      <button class="suggested-btn" onclick="sendPredefinedMessage('What are the library timings?')">Library</button>
+      <button class="suggested-btn" onclick="sendPredefinedMessage('How do I apply for admission?')">Admissions</button>
+    </div>
+    
+    <!-- Input Area -->
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Ask me anything..." autocomplete="off" />
+      <button id="send-button">➤</button>
+    </div>
+  </div>
+
+  <script>
+    const inputField = document.getElementById('user-input');
+    const chatBox = document.getElementById('chat-box');
+    const introText = document.getElementById("intro-text");
+    const suggestedQuestions = document.getElementById("suggested-questions");
+    const sendButton = document.getElementById("send-button");
+    let isTyping = false;
+
+    // Initialize chat state
+    function initChat() {
+      if (chatBox.children.length === 0) {
+        suggestedQuestions.style.display = "flex";
+      } else {
+        suggestedQuestions.style.display = "none";
+      }
+    }
+
+    // Send predefined message
+    function sendPredefinedMessage(message) {
+      inputField.value = message;
+      sendMessage();
+    }
+
+    // Smooth scroll to bottom
+    function scrollToBottom() {
+      chatBox.scrollTo({
+        top: chatBox.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+
+    // Add message to chat
+    function addMessage(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `${sender}-msg`;
+      msgDiv.textContent = text;
+      chatBox.appendChild(msgDiv);
+      scrollToBottom();
+      
+      // Hide suggestions after first message
+      if (suggestedQuestions.style.display !== "none") {
+        suggestedQuestions.style.display = "none";
+      }
+    }
+
+    // Show typing indicator
+    function showTypingIndicator() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'bot-msg typing-container';
+      typingDiv.innerHTML = `
+        <div class="typing-content">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-text">Bot is typing</span>
+        </div>
+      `;
+      chatBox.appendChild(typingDiv);
+      scrollToBottom();
+    }
+
+    // Type message with animation
+    async function typeMessage(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `${sender}-msg`;
+      chatBox.appendChild(msgDiv);
+      
+      for (let i = 0; i < text.length; i++) {
+        msgDiv.textContent = text.substring(0, i + 1);
+        if (i % 10 === 0) scrollToBottom();
+        await new Promise(resolve => setTimeout(resolve, 20));
+      }
+      scrollToBottom();
+    }
+
+    // Main send message function
+    async function sendMessage() {
+      const userMessage = inputField.value.trim();
+      if (!userMessage || isTyping) return;
+
+      // Hide intro on first message
+      if (introText.style.display !== "none") {
+        introText.style.display = "none";
+      }
+
+      isTyping = true;
+      addMessage(userMessage, 'user');
+      inputField.value = '';
+      
+      showTypingIndicator();
+      
+      try {
+        const response = await fetch("/get-answer", {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: userMessage })
+        });
+        
+        const data = await response.json();
+        document.querySelector('.typing-container')?.remove();
+        await typeMessage(data.answer, 'bot');
+      } catch (error) {
+        document.querySelector('.typing-container')?.remove();
+        addMessage("Sorry, something went wrong. Please try again.", 'bot');
+      } finally {
+        isTyping = false;
+        inputField.focus();
+      }
+    }
+
+    // Event listeners
+    sendButton.addEventListener('click', sendMessage);
+    inputField.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      initChat();
+      inputField.focus();
+    });
+  </script>
+</body>
+</html>
