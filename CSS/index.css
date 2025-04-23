@@ -37,17 +37,23 @@ body {
 
 /* NAVBAR */
 .navbar-custom {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     background-color: #1e293b;
     padding: 15px 30px;
     display: flex;
-    justify-content: left;
+    justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.navbar-title {
+  }
+  .navbar-title {
     font-size: 1.2rem;
     font-weight: bold;
+  }
+  .navbar-note {
+  font-size: 0.9rem;
+  color: #94a3b8;
 }
 
 /* CHAT CONTAINER */
@@ -58,6 +64,7 @@ body {
     padding: 20px;
     overflow: hidden;
     gap: 15px;
+    padding-bottom: 80px;
 }
 
 .chat-box {
@@ -133,12 +140,17 @@ body {
 
 /* INPUT AREA */
 .input-area {
-    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     background-color: #1e293b;
-    padding: 10px;
-    border-radius: 10px;
+    padding: 10px 20px;
+    z-index: 1000;
+    display: flex;
     align-items: center;
 }
+
 
 .input-area input {
     flex: 1;
@@ -252,3 +264,4 @@ body {
         font-size: 0.8rem;
     }
 }
+
