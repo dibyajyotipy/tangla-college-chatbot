@@ -36,11 +36,6 @@ Install the requirements: pip install -r requirements.txt
 Run the application: python app.py
 Open your browser and go to: http://127.0.0.1:5000/
 
-🌐 Deployment
-Easily deployable to Render.com 
-requirements.txt
-Procfile
-Gunicorn server.
 
 📚 Future Enhancements
 Integrate ChatGPT or DeepSeek AI models.
