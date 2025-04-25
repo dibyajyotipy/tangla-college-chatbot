@@ -2,4 +2,3 @@ Flask
 sentence-transformers
 torch
 gunicorn
-sqlite3
